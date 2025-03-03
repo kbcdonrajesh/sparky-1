@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent Showcase</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1de9b6, #2196f3);
+            color: white;
+            text-align: center;
+        }
+        .container {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #ff4081;
+            color: white;
+            cursor: pointer;
+        }
+        .talent-box {
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        img {
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <iframe width="1280" height="720" src="https://www.youtube.com/embed/jaMEkbILo2Q" title="Mera Teaching Career - Stand Up Comedy by Aashish Solanki" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+    <script>
+        function submitTalent() {
+            const name = document.getElementById("name").value;
+            const skill = document.getElementById("skill").value;
+            const workLink = document.getElementById("workLink").value;
+            const imageFile = document.getElementById("image").files[0];
+        
+            const formData = new FormData();
+            formData.append("name", name);
+            formData.append("skill", skill);
+            formData.append("workLink", workLink);
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+        
+            fetch("http://localhost:8080/add_talent", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                loadTalents(); // Refresh the talents list
+            })
+            .catch(error => console.error("Error:", error));
+        }
+        
+        function loadTalents() {
+            fetch("http://localhost:8080/get_talents")
+                .then(response => response.json())
+                .then(data => {
+                    let talentHTML = "";
+                    data.forEach(talent => {
+                        let imageUrl = talent.image ? `http://localhost:8080/uploads/${talent.image}` : "default.jpg";
+        
+                        talentHTML += `
+                            <div class="talent-box">
+                                <img src="${imageUrl}" alt="${talent.name}" onerror="this.src='default.jpg'">
+                                <h3>${talent.name}</h3>
+                                <p><strong>Skill:</strong> ${talent.skill}</p>
+                                ${talent.workLink ? `<a href="${talent.workLink}" target="_blank">View Work</a>` : ""}
+                            </div>
+                        `;
+                    });
+                    document.getElementById("talentList").innerHTML = talentHTML;
+                })
+                .catch(error => console.error("Error loading talents:", error));
+        }
+        
+        // Load talents on page load
+        loadTalents();
+    </script>
+</body>
+</html>

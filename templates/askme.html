@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sparky - AI Chatbot</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+    body {
+      background-color: #f7f7f7; /* Light background */
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background 0.3s;
+    }
+    
+    /* Header Styles */
+    header {
+      width: 100%;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    .header-container {
+      width: 90%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #1d9bf0;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+    }
+    nav ul li a {
+      color: #333;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: color 0.3s;
+    }
+    nav ul li a:hover {
+      color: #1d9bf0;
+    }
+    
+    /* Shared Container Styles */
+    .container {
+      width: 90%;
+      max-width: 400px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    /* Login & Registration Styles */
+    #container {
+      margin-bottom: 20px;
+    }
+    h2#title {
+      margin-bottom: 15px;
+      font-weight: 600;
+      font-size: 1.5rem;
+      color: #222;
+    }
+    .input-section {
+      margin: 10px 0;
+    }
+    .input-section input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background: #f0f0f0;
+      color: #333;
+      font-size: 1rem;
+    }
+    .input-section button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      background: #1d9bf0;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .input-section button:hover {
+      background: #1878c4;
+    }
+    .input-section p {
+      font-size: 0.9rem;
+      margin-top: 10px;
+      color: #555;
+    }
+    .input-section a {
+      color: #1d9bf0;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    /* Chat Container Styles */
+    #chat-container {
+      display: none;
+      flex-direction: column;
+      width: 95%;
+      max-width: 800px;
+      height: 90vh;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    #messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+    .message {
+      max-width: 90%;
+      padding: 12px 18px;
+      border-radius: 8px;
+      background-color: #f0f0f0;
+      color: #333;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+      animation: fadeIn 0.4s ease-in-out;
+      font-size: 1rem;
+    }
+    .message.user {
+      background: #1d9bf0;
+      color: #fff;
+      align-self: flex-end;
+    }
+    .message.bot {
+      background: #e5e5e5;
+      align-self: flex-start;
+    }
+    .input-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 12px;
+      background: #f0f0f0;
+      border-radius: 8px;
+      margin-top: 10px;
+    }
+    #user-input {
+      flex-grow: 1;
+      padding: 12px;
+      background: #fff;
+      color: #333;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .input-container button {
+      background: #1d9bf0;
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      border: none;
+      margin-left: 8px;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .input-container button:hover {
+      background: #1878c4;
+    }
+    
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+      .container {
+        max-width: 90%;
+        padding: 15px;
+      }
+      #chat-container {
+        width: 95%;
+        height: 80vh;
+      }
+      h2#title {
+        font-size: 1.3rem;
+      }
+      .input-section input, 
+      .input-container #user-input {
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+      .input-section button,
+      .input-container button {
+        padding: 10px;
+        font-size: 0.9rem;
+      }
+      .message {
+        font-size: 0.9rem;
+        padding: 10px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="header-container">
+      <div class="logo">Sparky - AI Chatbot</div>
+      <nav>
+        <ul>
+          <!-- These links can later be adjusted to point to different sections or perform actions (like Logout) -->
+          <li><a href="#" onclick="logout()">Logout</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Login & Registration Section -->
+  <div id="container" class="container">
+    <h2 id="title">Login to Sparky</h2>
+    <div id="login-section" class="input-section">
+      <input type="text" id="username" placeholder="Username" />
+      <input type="password" id="password" placeholder="Password" />
+      <button onclick="login()">Login</button>
+      <p>Don't have an account? <a href="#" onclick="toggleRegister(true)">Register here</a></p>
+    </div>
+    <div id="register-section" class="input-section" style="display: none;">
+      <input type="text" id="new-username" placeholder="Username" />
+      <input type="password" id="new-password" placeholder="Password" />
+      <button onclick="register()">Register</button>
+      <p>Already have an account? <a href="#" onclick="toggleRegister(false)">Login here</a></p>
+    </div>
+  </div>
+
+  <!-- Chat System -->
+  <div id="chat-container">
+    <div id="messages"></div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Ask anything..." onkeypress="handleKeyPress(event)" />
+      <button id="send-btn" onclick="sendMessage()">Send</button>
+      <button id="clear-btn" onclick="clearChat()">Clear</button>
+    </div>
+  </div>
+
+  <script>
+    // When the DOM is loaded, check login status and load chat history if available.
+    document.addEventListener("DOMContentLoaded", () => {
+      checkLogin();
+      loadChatHistory();
+    });
+
+    // Login Function: Sends a login request to the server.
+    async function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        alert("Please enter both username and password.");
+        return;
+      }
+      
+      try {
+        const response = await fetch("http://localhost:8080/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          alert("Login failed: " + errorText);
+          return;
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          localStorage.setItem("loggedIn", "true");
+          localStorage.setItem("username", username);
+          showChat();
+        } else {
+          alert("Invalid credentials");
+        }
+      } catch (error) {
+        alert("Error connecting to server: " + error);
+      }
+    }
+
+    // Registration Function: Sends a registration request to the server.
+    async function register() {
+      const username = document.getElementById("new-username").value.trim();
+      const password = document.getElementById("new-password").value.trim();
+
+      if (!username || !password) {
+        alert("Please fill in all fields.");
+        return;
+      }
+      
+      try {
+        const response = await fetch("http://localhost:8080/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          alert("Registration failed: " + errorText);
+          return;
+        }
+        
+        const data = await response.json();
+        if (data.success) {
+          alert("Registration successful! Please log in.");
+          toggleRegister(false);
+        } else {
+          alert(data.message);
+        }
+      } catch (error) {
+        alert("Error connecting to server: " + error);
+      }
+    }
+
+    // Check if the user is logged in.
+    function checkLogin() {
+      if (localStorage.getItem("loggedIn") === "true") {
+        showChat();
+      }
+    }
+
+    // Show chat container and hide the login/register container.
+    function showChat() {
+      document.getElementById("container").style.display = "none";
+      document.getElementById("chat-container").style.display = "flex";
+    }
+
+    // Logout Function: Clears stored login info and reloads the page.
+    function logout() {
+      localStorage.removeItem("loggedIn");
+      localStorage.removeItem("username");
+      location.reload();
+    }
+
+    // Send Message Function: Sends the user's message to the AI server.
+    async function sendMessage() {
+      const inputField = document.getElementById("user-input");
+      const messageText = inputField.value.trim();
+
+      if (!messageText) return;
+
+      addMessage(messageText, "user");
+      inputField.value = "";
+
+      try {
+        const response = await fetch("http://localhost:8080/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: messageText })
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          addMessage("Error: " + errorText, "bot");
+          return;
+        }
+        
+        const data = await response.json();
+        addMessage(data.response || "Error: No response from AI", "bot");
+      } catch (error) {
+        addMessage("Error: Unable to connect to AI server", "bot");
+      }
+    }
+
+    // Append a message to the chat.
+    function addMessage(text, sender) {
+      const msgContainer = document.getElementById("messages");
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message", sender);
+
+      if (text.includes("```")) {
+        const codeMatch = text.match(/```(.*?)\n([\s\S]*?)```/);
+        if (codeMatch) {
+          const language = codeMatch[1].trim();
+          const codeContent = codeMatch[2];
+          msgDiv.innerHTML = `<pre><code class="language-${language}">${escapeHTML(codeContent)}</code></pre>`;
+        } else {
+          msgDiv.textContent = text;
+        }
+      } else {
+        msgDiv.innerHTML = formatText(text);
+      }
+      
+      msgContainer.appendChild(msgDiv);
+      setTimeout(() => {
+        msgContainer.scrollTo({ top: msgContainer.scrollHeight, behavior: "smooth" });
+      }, 100);
+      saveChatHistory();
+    }
+
+    // Escape HTML to prevent XSS.
+    function escapeHTML(str) {
+      return str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Format text for chat messages.
+    function formatText(text) {
+      text = text.replace(/^### (.*?)$/gm, "<h3>$1</h3>");
+      text = text.replace(/^## (.*?)$/gm, "<h2>$1</h2>");
+      text = text.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>");
+      text = text.replace(/\*(.*?)\*/g, "<i>$1</i>");
+      text = text.replace(/__(.*?)__/g, "<u>$1</u>");
+      text = text.replace(/~~(.*?)~~/g, "<s>$1</s>");
+      text = text.replace(/\n\* (.*?)\n/g, "\n<ul><li>$1</li></ul>\n");
+      text = text.replace(/\* (.*?)(?=\n|$)/g, "<ul><li>$1</li></ul>");
+      text = text.replace(/\n/g, "<br>");
+      return text;
+    }
+
+    // Clear chat history.
+    function clearChat() {
+      document.getElementById("messages").innerHTML = "";
+      localStorage.removeItem("chatHistory");
+    }
+
+    // Save chat history to local storage.
+    function saveChatHistory() {
+      localStorage.setItem("chatHistory", document.getElementById("messages").innerHTML);
+    }
+
+    // Load chat history from local storage.
+    function loadChatHistory() {
+      document.getElementById("messages").innerHTML = localStorage.getItem("chatHistory") || "";
+    }
+
+    // Toggle between login and registration views.
+    function toggleRegister(show) {
+      document.getElementById("login-section").style.display = show ? "none" : "block";
+      document.getElementById("register-section").style.display = show ? "block" : "none";
+    }
+
+    // Handle "Enter" key press to send message.
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+  </script>
+</body>
+</html>
